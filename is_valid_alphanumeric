@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+set -u
+
+# uncomment for debugging
+# set -x
+
+# is_valid_alphanumeric -- Ensures that input 
+# consists only of alphanumeric characters
+
+is_valid_alphanumeric()
+{
+    # Validate arg: returns 0 if all alphanumeric, otherwise 1
+    local input=$1
+    # remove non alphanumerics from input
+    validString="$(echo $input | sed -e 's/[^[:alnum:]]//g')"
+    if [ "$validString" = "$input" ] ; then
+        return 0
+    else
+      return 1
+    fi
+}
+
+if [ "$BASH_SOURCE" = "$0" ] ; then
+# -n flag will surpress default trailin \n character
+  echo -n "Enter Input: "
+  read input
+
+  if ! is_valid_alphanumeric "$input" ; then
+    echo "Please enter only letters and numbers." >&2
+    exit 1
+  else
+    echo "Input is valid."
+  fi
+  exit 0
+fi
