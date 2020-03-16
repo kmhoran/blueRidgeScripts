@@ -38,6 +38,7 @@ if [ "$BASH_SOURCE" = "$0" ] ; then
     if [ -z $(echo $2|sed 's/[[:digit:]]//g') ]; then
         month_num_to_name $2
     else
+        # capitalize the first letter and add the next two characters: 'Jan'
         month="$(echo $1|cut -c1|tr '[:lower:]' '[:upper:]')"
         month="$month$(echo $1|cut -c2-3 | tr '[:upper:]' '[:lower:]')"
     fi
