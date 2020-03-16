@@ -1,0 +1,70 @@
+#!/bin/bash
+# format_number -- Returns a given number as a comma-seperated value
+
+set -e
+set -u
+
+# uncomment for debugging
+# set -x
+
+format_number()
+{
+    # we assume `.` is the decimal seperator
+    # integer is what comes bfore the decimal, 
+    # decimal is what comes after
+    local integer=$(echo $1 | cut -d. -f1)
+    local decimal=$(echo $1 | cut -d. -f2)
+
+    # check if the number even has decimals
+    if [ "$decimal" != "$1" ] ; then
+        local result="${DD:= '.'}$decimal"
+    fi
+
+    local thousands=$integer
+
+    # add deliminating commas `TD` while number is larger than 1k
+    while [ $thousands -gt 999 ] ; do
+        local remainder=$(($thousands %1000))
+        
+        # we want the remainder to be 3 digits,
+        # so let's add any leading zeros to make that happen
+        while [ ${#remainder} -lt 3 ] ; do
+            remainder="0$remainder"
+        done
+
+        result="${TD:=","}${remainder}${result}"
+        thousands=$(($thousands / 1000))
+    done
+
+    formattedNum="${thousands}${result}"
+    # is the second arg a non-empty string?
+    if [ ! -z $2 ] ; then
+        echo $formattedNum
+    fi
+}
+
+DD="." # decimal deliminator
+TD="," # thousands deliminator
+
+# BEGIN MAIN
+# ==========
+
+while getopts "d:t:" opt; do
+    case $opt in
+      d ) DD="${OPTARG:-}"    ;;
+      t ) TD="${OPTARG:-}"    ;;
+    esac 
+done
+shift $(($OPTIND - 1))
+
+# Input validation
+if [ $# -eq 0 ] ; then
+    echo "Usage $(basename $0) [-d c] [-t c] number"
+    echo "  -d specifies the decimal point deliminator"
+    echo "  -t specifies the thousands deliminator"
+    exit 0 
+fi
+
+format_number $1 1 # hack to force an echo
+
+exit 0
